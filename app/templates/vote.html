@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+    <a href="/" style="text-decoration: none; color: var(--color-text-secondary);">
+        ← 메인으로
+    </a>
+</div>
+
+<h1 class="heading">{{ poll.title }}</h1>
+
+<div class="card">
+    <form action="/vote/{{ poll.id }}" method="post">
+        <div class="radio-group">
+            {% set colors = ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0', '#FF5722'] %}
+            {% set total_votes = namespace(value=0) %}
+            {% for option in poll.options %}
+                {% set total_votes.value = total_votes.value + option.votes %}
+            {% endfor %}
+            
+            {% for option in poll.options %}
+            <label class="radio-option">
+                <input type="radio" name="option_id" value="{{ option.id }}" required>
+                <div style="width: 100%;">
+                    <div class="flex justify-between" style="margin-bottom: 8px;">
+                        <span class="font-medium">{{ option.text }}</span>
+                        <span class="text-secondary">{{ option.votes }}표</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar" 
+                             style="width: {{ (option.votes / total_votes.value * 100) if total_votes.value > 0 else 0 }}%; 
+                                    background-color: {{ colors[loop.index0 % colors|length] }};">
+                        </div>
+                    </div>
+                    <div class="text-secondary text-sm" style="margin-top: 4px;">
+                        {{ "%.1f"|format(option.votes / total_votes.value * 100 if total_votes.value > 0 else 0) }}%
+                    </div>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 24px;">
+            <button type="submit" class="button">투표하기</button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

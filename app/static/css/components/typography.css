@@ -1,0 +1,10 @@
+.heading {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--color-text);
+}
+
+.text-secondary {
+    color: var(--color-text-secondary);
+} 

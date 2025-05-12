@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h1 class="heading">새 투표 만들기</h1>
+    <form action="/admin/polls" method="post">
+        <div>
+            <label class="label" for="title">투표 제목</label>
+            <input type="text" id="title" name="title" class="input" required>
+        </div>
+        
+        <div id="options" class="mt-24">
+            <label class="label">투표 항목</label>
+            <div class="flex flex-col gap-12">
+                <div class="option-wrapper flex gap-12 items-center">
+                    <input type="text" name="options[]" class="input" required placeholder="첫 번째 항목">
+                    <button type="button" class="button button--danger" onclick="removeOption(this)" style="min-width: 60px;">삭제</button>
+                </div>
+                <div class="option-wrapper flex gap-12 items-center">
+                    <input type="text" name="options[]" class="input" required placeholder="두 번째 항목">
+                    <button type="button" class="button button--danger" onclick="removeOption(this)" style="min-width: 60px;">삭제</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-24 flex justify-between">
+            <button type="button" onclick="addOption()" class="button button--secondary">
+                항목 추가
+            </button>
+            <button type="submit" class="button button--primary">투표 만들기</button>
+        </div>
+    </form>
+</div>
+
+<h2 class="heading mt-48">투표 관리</h2>
+{% for poll in polls %}
+<div class="card">
+    <div class="flex justify-between items-center">
+        <h3 style="margin: 0;">{{ poll.title }}</h3>
+        <div class="button-group">
+            <a href="/vote/{{ poll.id }}" class="button button--secondary">결과 보기</a>
+            <form action="/admin/polls/{{ poll.id }}/delete" method="post" style="margin: 0;">
+                <button type="submit" class="button button--text" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script>
+function addOption() {
+    const optionsDiv = document.querySelector('#options div');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'option-wrapper flex gap-12 items-center';
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'options[]';
+    input.className = 'input';
+    input.required = true;
+    input.placeholder = '새로운 항목';
+    
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'button button--danger';
+    removeBtn.style.minWidth = '60px';
+    removeBtn.onclick = function() { removeOption(this); };
+    removeBtn.textContent = '삭제';
+    
+    wrapper.appendChild(input);
+    wrapper.appendChild(removeBtn);
+    optionsDiv.appendChild(wrapper);
+}
+
+function removeOption(button) {
+    const options = document.querySelectorAll('.option-wrapper');
+    if (options.length > 2) {
+        button.parentElement.remove();
+    } else {
+        alert('최소 2개의 항목이 필요합니다.');
+    }
+}
+</script>
+{% endblock %} 

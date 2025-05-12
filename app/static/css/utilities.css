@@ -1,0 +1,15 @@
+.mt-24 { margin-top: 24px; }
+.mt-48 { margin-top: 48px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-16 { margin-bottom: 16px; }
+.m-0 { margin: 0; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.gap-12 { gap: 12px; }
+
+.font-medium { font-weight: 500; }
+.text-sm { font-size: 14px; }
+.no-decoration { text-decoration: none; }
+.inline-block { display: inline-block; } 
