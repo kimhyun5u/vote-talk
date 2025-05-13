@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from app.routes.poll_routes import router
-from app.database.connection import engine
+from app.db.connection import engine
 from app.models.poll import Base
 
 def create_app():

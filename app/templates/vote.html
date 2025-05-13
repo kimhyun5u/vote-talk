@@ -27,10 +27,7 @@
                         <span class="text-secondary">{{ option.votes }}표</span>
                     </div>
                     <div class="progress-bar-bg">
-                        <div class="progress-bar" 
-                             style="width: {{ (option.votes / total_votes.value * 100) if total_votes.value > 0 else 0 }}%; 
-                                    background-color: {{ colors[loop.index0 % colors|length] }};">
-                        </div>
+                        <div class="progress-bar" style="width: {{ (option.votes / total_votes.value * 100) if total_votes.value > 0 else 0 }}%; background-color: {{ colors[loop.index0 % colors|length] }};"></div>
                     </div>
                     <div class="text-secondary text-sm" style="margin-top: 4px;">
                         {{ "%.1f"|format(option.votes / total_votes.value * 100 if total_votes.value > 0 else 0) }}%
@@ -45,4 +42,134 @@
         </div>
     </form>
 </div>
+
+<div class="card mt-24">
+    <h2 class="heading" style="margin-bottom: 16px;">댓글</h2>
+    
+    <div class="comments-container" id="comments">
+        {% for comment in poll.comments|sort(attribute='created_at', reverse=true) %}
+        <div class="comment">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">{{ comment.author }}</span>
+                <span class="text-sm text-secondary">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            <p style="margin: 8px 0;">{{ comment.content }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="comment-form-container">
+    <form id="commentForm" class="comment-form">
+        <div class="flex gap-12 items-center">
+            <input type="text" 
+                   name="author" 
+                   class="input" 
+                   placeholder="닉네임" 
+                   required 
+                   style="max-width: 150px;">
+            <input type="text" 
+                   name="content" 
+                   class="input" 
+                   placeholder="댓글을 입력하세요" 
+                   required>
+            <button type="submit" class="button button--primary" style="white-space: nowrap;">
+                댓글 작성
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.comments-container {
+    max-height: calc(100vh - 500px);
+    overflow-y: auto;
+    margin-bottom: 80px;  /* 댓글 입력창 높이만큼 여백 */
+}
+
+.comment {
+    padding: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.comment:last-child {
+    border-bottom: none;
+}
+
+.comment-form-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-4);
+    z-index: 100;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.comment-form {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-6);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .comment-form {
+        padding: 0 var(--spacing-4);
+    }
+    
+    .comment-form .flex {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .comment-form input[name="author"] {
+        max-width: 100%;
+    }
+    
+    .comment-form button {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+const commentForm = document.getElementById('commentForm');
+const commentsContainer = document.getElementById('comments');
+
+commentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(commentForm);
+    const response = await fetch(`/api/polls/{{ poll.id }}/comments`, {
+        method: 'POST',
+        body: formData
+    });
+    
+    if (response.ok) {
+        commentForm.reset();
+        await loadComments();
+    }
+});
+
+async function loadComments() {
+    const response = await fetch(`/api/polls/{{ poll.id }}/comments`);
+    const comments = await response.json();
+    
+    commentsContainer.innerHTML = comments.map(comment => `
+        <div class="comment">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">${comment.author}</span>
+                <span class="text-sm text-secondary">${new Date(comment.created_at).toLocaleString()}</span>
+            </div>
+            <p style="margin: 8px 0;">${comment.content}</p>
+        </div>
+    `).join('');
+}
+
+// 5초마다 댓글 새로고침
+setInterval(loadComments, 5000);
+</script>
 {% endblock %} 

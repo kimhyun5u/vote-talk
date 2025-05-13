@@ -2,11 +2,11 @@ from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
-from database import SessionLocal, Poll, Option
+from app.database import SessionLocal, Poll, Option, Comment
 from typing import List
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
-from .security import create_access_token, get_current_user, get_current_admin
+from app.security import create_access_token, get_current_user, get_current_admin
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
@@ -187,3 +187,33 @@ async def logout():
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie(key="access_token")
     return response
+
+@app.get("/api/polls/{poll_id}/comments")
+async def get_comments(poll_id: int, db: Session = Depends(get_db)):
+    comments = db.query(Comment).filter(Comment.poll_id == poll_id).order_by(Comment.created_at.desc()).all()
+    return [
+        {
+            "id": c.id,
+            "content": c.content,
+            "author": c.author,
+            "created_at": c.created_at.isoformat()
+        }
+        for c in comments
+    ]
+
+@app.post("/api/polls/{poll_id}/comments")
+async def create_comment(
+    poll_id: int,
+    content: str = Form(...),
+    author: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    comment = Comment(
+        content=content,
+        author=author,
+        poll_id=poll_id
+    )
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
+    return {"status": "success"}

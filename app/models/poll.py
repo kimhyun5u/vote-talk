@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from app.database.connection import Base
+from app.db.connection import Base
 
 class Poll(Base):
     __tablename__ = "polls"

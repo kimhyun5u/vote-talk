@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import List
 from app.services.poll_service import PollService
-from app.database.connection import get_db
+from app.db.connection import get_db
 
 templates = Jinja2Templates(directory="templates")
 
