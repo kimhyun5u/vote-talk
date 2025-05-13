@@ -17,8 +17,8 @@ VoteTalk은 간단하고 사용하기 쉬운 온라인 투표 플랫폼입니다
 ### Docker Compose 실행
 1. 저장소 클론
 ```bash
-git clone https://github.com/yourusername/votetalk.git
-cd votetalk
+git clone https://github.com/kimhyun5u/vote-talk.git
+cd vote-talk
 ```
 2. Docker Compose 실행
 ```bash
